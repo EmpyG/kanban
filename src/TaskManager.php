@@ -7,8 +7,9 @@ use DateTime;
 
 class TaskManager
 {
-    private const WORK_IN_PROGRESS = 2;
-    private const FINISHED = 3;
+    public const STATUS_TODO = 1;
+    public const STATUS_WORK = 2;
+    public const STATUS_FINISHED = 3;
 
     private $dbConn;
 
@@ -27,37 +28,6 @@ class TaskManager
     {
         $this->dbConn = DatabaseConnect::getDatabase($cfg);
         $this->date = new DateTime('now');
-    }
-
-    /**
-     * Adds new task to the database, doesn't add task if there is task with the same desc already exists
-     *
-     * @param int    $status
-     * @param string $description desc of the task
-     * @param string $deadline    line that is dead
-     * @return bool
-     * @throws \Exception
-     */
-    public function addToBoard(int $status, string $description, $deadline): bool
-    {
-        if ($this->taskExist($description)) {
-            return false;
-        }
-
-        if ($this->isTaskSetInPast($deadline)) {
-            return false;
-        }
-
-        //inserts new task to the database
-        $newTask = $this->dbConn->insert(
-            Board::TABLE_NAME, [
-            Board::ID       => null,
-            Board::STATUS   => $status,
-            Board::DESC     => $description,
-            Board::DEADLINE => $deadline,
-            Board::ACTIVE   => 1,
-        ]);
-        return true;
     }
 
     /**
@@ -89,65 +59,80 @@ class TaskManager
     }
 
     /**
-     * Sets task status to "Work in progress"
+     * Adds new task to the database, doesn't add task if there is task with the same desc already exists
      *
-     * @param int $id
-     * @return void
-     * add $status next to int id
+     * @param int    $status
+     * @param string $description desc of the task
+     * @param string $deadline    line that is dead
+     * @return bool
+     * @throws \Exception
      */
-    public function updateTaskStatus(int $id): void
+    public function addToBoard(int $status, string $description, $deadline): bool
     {
-        $updateTask = $this->dbConn->update(
+        if ($this->taskExist($description)) {
+            return false;
+        }
+
+        if ($this->isTaskSetInPast($deadline)) {
+            return false;
+        }
+
+        //inserts new task to the database
+        $this->dbConn->insert(
+            Board::TABLE_NAME, [
+            Board::ID       => null,
+            Board::STATUS   => $status,
+            Board::DESC     => $description,
+            Board::DEADLINE => $deadline
+        ]);
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAll(): array
+    {
+        return $this->dbConn->select(
             Board::TABLE_NAME,
-            [Board::STATUS . '[+]' => 1],
-            [Board::ID => $id]
-        );
+            [
+                Board::ID,
+                Board::STATUS,
+                Board::DESC,
+                Board::DEADLINE
+            ]);
     }
 
     /**
      * Sets task status to "Work in progress"
      *
      * @param int $id
+     * @param int $status
      * @return void
      * add $status next to int id
      */
-    public function updateTaskWork(int $id): void
+    public function updateTaskStatus(int $id, int $status): void
     {
-        $updateTask = $this->dbConn->update(
+        $this->dbConn->update(
             Board::TABLE_NAME,
-            [Board::STATUS => self::WORK_IN_PROGRESS],
+            [Board::STATUS => $status],
             [Board::ID => $id]
         );
     }
 
     /**
-     * Sets task status to "Finished"
+     * Deletes task
      *
      * @param int $id
-     * @return void
      */
-    public function updateTaskFinish(int $id): void
+    public function deleteTask(int $id): void
     {
-        $finishTask = $this->dbConn->update(
-            Board::TABLE_NAME,
-            [Board::STATUS => self::FINISHED],
-            [Board::ID => $id]
-        );
-    }
-
-    /**
-     * Sets task's active property
-     *
-     * @param int $id
-     * @param int $active
-     * @return void
-     */
-    public function setActiveStatus(int $id, int $active): void
-    {
-        $setActive = $this->dbConn->update(
-            Board::TABLE_NAME,
-            [Board::ACTIVE => $active],
-            [Board::ID => $id]
-        );
+        $this->dbConn->delete(
+            Board::TABLE_NAME, [
+            "AND" => [
+                Board::ID     => $id,
+                Board::STATUS => self::STATUS_FINISHED
+            ]
+        ]);
     }
 }

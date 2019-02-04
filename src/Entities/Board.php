@@ -21,6 +21,5 @@ abstract class Board
     public const STATUS = 'status';
     public const DESC = 'description';
     public const DEADLINE = 'deadline';
-    public const ACTIVE = 'active';
 
 }

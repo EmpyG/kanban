@@ -6,17 +6,33 @@ use App\TaskManager;
 use App\TaskView;
 
 $cfg = include 'config.php';
-$parser = new ConfigLoader($cfg);
-$load = new TaskView($parser);
-$manage = new TaskManager($parser);
+$configLoader = new ConfigLoader($cfg);
+$taskView = new TaskView($configLoader);
+$taskManager = new TaskManager($configLoader);
 
 $status = $_POST['status'] ?? null;
 $description = $_POST['description'] ?? null;
 $deadline = $_POST['deadline'] ?? null;
 
 if (isset($status, $description, $deadline)) {
-    $manage->addToBoard($status, $description, $deadline);
+    $taskManager->addToBoard($status, $description, $deadline);
 }
+
+$id = $_POST['id'] ?? null;
+$statusUpdate = $_POST['statusUpdate'] ?? null;
+
+if (isset($id, $statusUpdate)) {
+    $taskManager->updateTaskStatus($id, $statusUpdate);
+}
+
+$idDelete = $_POST['idDelete'] ?? null;
+
+if (isset($idDelete)) {
+    $taskManager->deleteTask($idDelete);
+}
+
+$datas = $taskManager->getAll();
+$list = $taskView->generateSelect($datas);
 
 ?>
 <!DOCTYPE html>
@@ -32,27 +48,27 @@ if (isset($status, $description, $deadline)) {
 
 <body>
 <div class="num">
-    Amount of tasks in the database: <?php echo $load->getAmount() ?>
+    Amount of tasks in the database: <?php echo $taskView->getAmount() ?>
 </div>
 <section class="container">
     <div class="task-list">
         <h1><a href="add.php">To-Do</a></h1>
         <div class="list">
-            <?php $load->listDisplay(1) ?>
+            <?php $taskView->listDisplay(1) ?>
         </div>
     </div>
 
     <div class="task-list">
         <h1><a href="status.php">Work in Progress</a></h1>
         <div class="list">
-            <?php $load->listDisplay(2) ?>
+            <?php $taskView->listDisplay(2) ?>
         </div>
     </div>
 
     <div class="task-list">
         <h1>Finished</h1>
         <div class="list">
-            <?php $load->listDisplay(3) ?>
+            <?php $taskView->listDisplay(3) ?>
         </div>
     </div>
 </section>
@@ -61,7 +77,7 @@ if (isset($status, $description, $deadline)) {
     <form action="" method="post" class="">
         <div class="">
             <label class="" for="desc">Please describe your task: </label>
-            <input class="" type="text" placeholder="Make some progress lmao" id="desc" name="description" required>
+            <input class="" type="text" placeholder="Make some progress" id="desc" name="description" required>
         </div>
         <div class="">
             <label class="" for="dline">Enter the task's deadline: </label>
@@ -76,6 +92,43 @@ if (isset($status, $description, $deadline)) {
         </select>
         <div class="">
             <input class="" type="submit" value="Add Task">
+        </div>
+    </form>
+</div>
+
+<div class="num">
+    <form action="" method="post" class="column">
+        <div>
+            <label class="" for="task-id">Select the task: </label>
+            <select name="id" id="task-id">
+                <?php echo $list; ?>
+            </select>
+        </div>
+        <div>
+            <label for="task-status">Status of the task:</label>
+            <select name="statusUpdate" id="task-status">
+                <option value="" disabled>--sup bich--</option>
+                <option value="<?php echo TaskManager::STATUS_TODO ?>">To-Do</option>
+                <option value="<?php echo TaskManager::STATUS_WORK ?>">Work in Progress</option>
+                <option value="<?php echo TaskManager::STATUS_FINISHED ?>">Finished</option>
+            </select>
+        </div>
+        <div>
+            <input class="" type="submit" value="Update status">
+        </div>
+    </form>
+</div>
+
+<div class="num">
+    <form action="" method="post" class="column">
+        <div>
+            <label class="" for="task-idDelete">Select the task: </label>
+            <select name="idDelete" id="task-idDelete">
+                <?php echo $list; ?>
+            </select>
+        </div>
+        <div>
+            <input class="" type="submit" value="Delete task">
         </div>
     </form>
 </div>

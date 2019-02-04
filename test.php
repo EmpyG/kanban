@@ -10,5 +10,4 @@ $add = new TaskManager($parser);
 // $add->addToBoard("I think I found it", "Before");
 //$add->updateTaskFinish(5);
 //$add->setActiveStatus(4, 0);
-$deadline = 'now';
-$add->taskTime($deadline);
+$add->getAll();

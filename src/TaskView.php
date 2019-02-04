@@ -40,7 +40,6 @@ class TaskView
             [Board::ID, Board::DESC, Board::DEADLINE],
             [
                 Board::STATUS => $status,
-                Board::ACTIVE => 1,
                 'ORDER'       => [
                     Board::DEADLINE => 'ASC'
                 ]
@@ -51,7 +50,7 @@ class TaskView
         foreach ($array as $int => $task) {
             $val = $int + 1;
             echo sprintf(
-                '<li> %s . %s . %s. %s </li>',
+                '<li> %s. %s. %s. %s </li>',
                 $val,
                 $task[Board::ID],
                 $task[Board::DESC],
@@ -61,4 +60,20 @@ class TaskView
         echo '</ul>';
     }
 
+    /**
+     * @param array $arr
+     * @return string
+     */
+    public function generateSelect(array $arr): string
+    {
+        $list = '';
+        foreach ($arr as $each) {
+            $list .= sprintf(
+                '<option value="%s">%s</option>',
+                $each[Board::ID],
+                $each[Board::DESC]
+            );
+        }
+        return $list;
+    }
 }
