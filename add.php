@@ -30,6 +30,7 @@ if (isset($description, $deadline)) {
 <body>
 <form action="" method="post" class="column">
     <div class="">
+        <h1>NOT NEEDED ANYMORE</h1>
         <label class="" for="desc">Please describe your task: </label>
         <input class="" type="text" placeholder="Make some progress lmao" id="desc" name="description" required>
     </div>

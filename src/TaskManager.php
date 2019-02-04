@@ -7,7 +7,6 @@ use DateTime;
 
 class TaskManager
 {
-    private const NOT_STARTED = 1;
     private const WORK_IN_PROGRESS = 2;
     private const FINISHED = 3;
 
@@ -140,6 +139,7 @@ class TaskManager
      * Sets task's active property
      *
      * @param int $id
+     * @param int $active
      * @return void
      */
     public function setActiveStatus(int $id, int $active): void

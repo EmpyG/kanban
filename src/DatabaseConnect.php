@@ -10,6 +10,7 @@ class DatabaseConnect
      * Sets database handler
      *
      * @param LoaderInterface $config
+     * @return Medoo
      */
     public static function getDatabase(LoaderInterface $config)
     {

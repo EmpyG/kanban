@@ -2,12 +2,12 @@
 require 'vendor/autoload.php';
 
 use App\ConfigLoader;
-use App\TaskLoader;
 use App\TaskManager;
+use App\TaskView;
 
 $cfg = include 'config.php';
 $parser = new ConfigLoader($cfg);
-$load = new TaskLoader($parser);
+$load = new TaskView($parser);
 $manage = new TaskManager($parser);
 
 $status = $_POST['status'] ?? null;

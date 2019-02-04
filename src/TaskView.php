@@ -4,7 +4,7 @@ namespace App;
 
 use App\Entities\Board;
 
-class TaskLoader
+class TaskView
 {
     private $dbConn;
 
@@ -38,7 +38,13 @@ class TaskLoader
         $array = $this->dbConn->select(
             Board::TABLE_NAME,
             [Board::ID, Board::DESC, Board::DEADLINE],
-            [Board::STATUS => $status, Board::ACTIVE => 1]
+            [
+                Board::STATUS => $status,
+                Board::ACTIVE => 1,
+                'ORDER'       => [
+                    Board::DEADLINE => 'ASC'
+                ]
+            ]
         );
 
         echo '<ul>';
@@ -55,16 +61,4 @@ class TaskLoader
         echo '</ul>';
     }
 
-    /**
-     * Selects all data form database
-     *
-     * @return void
-     */
-    private function getList(): void
-    {
-        $array = $this->dbConn->select(
-            "board",
-            ["id", "status", "description", "deadline"]
-        );
-    }
 }
