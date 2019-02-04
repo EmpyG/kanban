@@ -3,14 +3,29 @@
 namespace App;
 
 use App\Entities\Board;
+use App\Exceptions\TaskAlreadyExistsException;
+use App\Exceptions\TaskSetInFutureException;
 use DateTime;
+use Exception;
 
 class TaskManager
 {
+    /**
+     * Status codes
+     */
     public const STATUS_TODO = 1;
     public const STATUS_WORK = 2;
     public const STATUS_FINISHED = 3;
 
+    /**
+     * Exception messages
+     */
+    private const TASK_EXISTS_MESSAGE = 'This task already exists.';
+    private const TASK_IN_PAST_MESSAGE = 'Task can\'t be set in past.';
+
+    /**
+     * @var \Medoo\Medoo
+     */
     private $dbConn;
 
     /**
@@ -65,16 +80,18 @@ class TaskManager
      * @param string $description desc of the task
      * @param string $deadline    line that is dead
      * @return bool
-     * @throws \Exception
+     * @throws TaskAlreadyExistsException
+     * @throws TaskSetInFutureException
+     * @throws Exception
      */
     public function addToBoard(int $status, string $description, $deadline): bool
     {
         if ($this->taskExist($description)) {
-            return false;
+            throw new TaskAlreadyExistsException(self::TASK_EXISTS_MESSAGE);
         }
 
         if ($this->isTaskSetInPast($deadline)) {
-            return false;
+            throw new TaskSetInFutureException(self::TASK_IN_PAST_MESSAGE);
         }
 
         //inserts new task to the database

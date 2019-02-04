@@ -42,3 +42,7 @@ body {
 .list li {
     list-style: none;
 }
+
+.bgr-red {
+    border: 4px dotted red;
+}

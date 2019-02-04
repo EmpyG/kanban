@@ -5,17 +5,26 @@ use App\ConfigLoader;
 use App\TaskManager;
 use App\TaskView;
 
-$cfg = include 'config.php';
-$configLoader = new ConfigLoader($cfg);
-$taskView = new TaskView($configLoader);
-$taskManager = new TaskManager($configLoader);
+try {
+    $cfg = include 'config.php';
+    $configLoader = new ConfigLoader($cfg);
+    $taskView = new TaskView($configLoader);
+    $taskManager = new TaskManager($configLoader);
+} catch (Exception $exception) {
+    echo $exception->getMessage();
+    die;
+}
 
 $status = $_POST['status'] ?? null;
 $description = $_POST['description'] ?? null;
 $deadline = $_POST['deadline'] ?? null;
 
 if (isset($status, $description, $deadline)) {
-    $taskManager->addToBoard($status, $description, $deadline);
+    try {
+        $taskManager->addToBoard($status, $description, $deadline);
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
 }
 
 $id = $_POST['id'] ?? null;
@@ -132,7 +141,11 @@ $list = $taskView->generateSelect($datas);
         </div>
     </form>
 </div>
-
+<?php if (isset($error)): ?>
+    <div class="num bgr-red">
+        <?php echo $error; ?>
+    </div>
+<?php endif; ?>
 </body>
 
 </html>
