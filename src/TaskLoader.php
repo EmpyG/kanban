@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Entities\Board;
+
 class TaskLoader
 {
     private $dbConn;
@@ -19,8 +21,8 @@ class TaskLoader
     public function getAmount()
     {
         $count = $this->dbConn->count(
-            "board",
-            "id"
+            Board::TABLE_NAME,
+            Board::ID
         );
         echo $count;
     }
@@ -28,20 +30,27 @@ class TaskLoader
     /**
      * Displays tasks in relevant place based on their's status
      *
+     * @param int $status
      * @return void
      */
     public function listDisplay(int $status)
     {
         $array = $this->dbConn->select(
-            "board",
-            ["id", "description", "deadline"],
-            ["status" => $status, "active" => 1]
+            Board::TABLE_NAME,
+            [Board::ID, Board::DESC, Board::DEADLINE],
+            [Board::STATUS => $status, Board::ACTIVE => 1]
         );
 
         echo '<ul>';
         foreach ($array as $int => $task) {
             $val = $int + 1;
-            echo "\n <li>" . $val . ". " . $task["id"] . ". " . $task["description"] . ": " . $task["deadline"] . "</li>";
+            echo sprintf(
+                '<li> %s . %s . %s. %s </li>',
+                $val,
+                $task[Board::ID],
+                $task[Board::DESC],
+                $task[Board::DEADLINE]
+            );
         }
         echo '</ul>';
     }

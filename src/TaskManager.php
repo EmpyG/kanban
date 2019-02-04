@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Entities\Board;
 use DateTime;
 
 class TaskManager
@@ -19,6 +20,7 @@ class TaskManager
 
     /**
      * TaskManager constructor.
+     *
      * @param LoaderInterface $cfg
      * @throws \Exception
      */
@@ -31,13 +33,13 @@ class TaskManager
     /**
      * Adds new task to the database, doesn't add task if there is task with the same desc already exists
      *
-     * @param int $status
+     * @param int    $status
      * @param string $description desc of the task
-     * @param string $deadline line that is dead
+     * @param string $deadline    line that is dead
      * @return bool
      * @throws \Exception
      */
-    public function addToBoard(int $status, string $description, $deadline)
+    public function addToBoard(int $status, string $description, $deadline): bool
     {
         if ($this->taskExist($description)) {
             return false;
@@ -49,15 +51,14 @@ class TaskManager
 
         //inserts new task to the database
         $newTask = $this->dbConn->insert(
-            "board",
-            [
-                'id' => null,
-                "status" => $status,
-                "description" => $description,
-                "deadline" => $deadline,
-                "active" => 1,
-            ]
-        );
+            Board::TABLE_NAME, [
+            Board::ID       => null,
+            Board::STATUS   => $status,
+            Board::DESC     => $description,
+            Board::DEADLINE => $deadline,
+            Board::ACTIVE   => 1,
+        ]);
+        return true;
     }
 
     /**
@@ -70,8 +71,8 @@ class TaskManager
     private function taskExist(string $description): bool
     {
         return $this->dbConn->has(
-            "board",
-            ["description" => $description]
+            Board::TABLE_NAME,
+            [Board::DESC => $description]
         );
     }
 
@@ -98,9 +99,9 @@ class TaskManager
     public function updateTaskStatus(int $id): void
     {
         $updateTask = $this->dbConn->update(
-            "board",
-            ["status[+]" => 1],
-            ["id" => $id]
+            Board::TABLE_NAME,
+            [Board::STATUS . '[+]' => 1],
+            [Board::ID => $id]
         );
     }
 
@@ -114,9 +115,9 @@ class TaskManager
     public function updateTaskWork(int $id): void
     {
         $updateTask = $this->dbConn->update(
-            "board",
-            ["status" => self::WORK_IN_PROGRESS],
-            ["id" => $id]
+            Board::TABLE_NAME,
+            [Board::STATUS => self::WORK_IN_PROGRESS],
+            [Board::ID => $id]
         );
     }
 
@@ -129,9 +130,9 @@ class TaskManager
     public function updateTaskFinish(int $id): void
     {
         $finishTask = $this->dbConn->update(
-            "board",
-            ["status" => self::FINISHED],
-            ["id" => $id]
+            Board::TABLE_NAME,
+            [Board::STATUS => self::FINISHED],
+            [Board::ID => $id]
         );
     }
 
@@ -144,9 +145,9 @@ class TaskManager
     public function setActiveStatus(int $id, int $active): void
     {
         $setActive = $this->dbConn->update(
-            "board",
-            ["active" => $active],
-            ["id" => $id]
+            Board::TABLE_NAME,
+            [Board::ACTIVE => $active],
+            [Board::ID => $id]
         );
     }
 }
